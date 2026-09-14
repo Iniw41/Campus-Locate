@@ -1,2 +1,2 @@
 # Campus-Locate
-Campus Locate is a proposed software system for Cebu Institute of Technology
+Campus Locate is a proposed software system for Cebu Institute of Technology – University (CIT-U) that helps students, faculty, and staff with three common campus problems: finding buildings, rooms, and offices; staying updated on school events and announcements; and reporting or recovering lost items. It brings campus navigation, a newsfeed for announcements, and a lost-and-found ticketing feature into one convenient system, aimed at reducing the time, energy, and effort students currently lose dealing with these issues.

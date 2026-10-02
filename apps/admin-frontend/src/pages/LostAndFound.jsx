@@ -2,6 +2,17 @@ import { useState, useEffect } from 'react';
 import { api } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { portal } from '../config/portalConfig.js';
+import { Trash2 } from 'lucide-react';
+
+const STATUSES = ['Lost', 'Found', 'Claimed', 'Resolved', 'Returned'];
+
+const statusBadgeStyles = {
+  Lost: 'bg-maroon-light text-maroon border border-maroon/20',
+  Found: 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+  Claimed: 'bg-blue-100 text-blue-800 border border-blue-200',
+  Resolved: 'bg-purple-100 text-purple-800 border border-purple-200',
+  Returned: 'bg-teal-100 text-teal-800 border border-teal-200',
+};
 
 export default function LostAndFound() {
   const { user } = useAuth();
@@ -59,11 +70,45 @@ export default function LostAndFound() {
     reader.readAsDataURL(file);
   };
 
+  const handleStatusChange = async (ticketId, newStatus) => {
+    try {
+      const res = await api(`/admin/lost-and-found/${ticketId}/status`, {
+        method: 'PATCH',
+        body: { status: newStatus },
+      });
+      const updated = res.ticket || res;
+      setTickets((prev) =>
+        prev.map((t) => (t.id === ticketId ? { ...t, status: updated.status } : t))
+      );
+      if (selectedTicket && selectedTicket.id === ticketId) {
+        setSelectedTicket((prev) => ({ ...prev, status: updated.status }));
+      }
+    } catch (err) {
+      alert(err.message || 'Failed to update ticket status.');
+    }
+  };
+
+  const handleDeleteTicket = async (ticketId) => {
+    if (!window.confirm('Are you sure you want to delete this ticket? This action cannot be undone.')) {
+      return;
+    }
+    try {
+      await api(`/admin/lost-and-found/${ticketId}`, {
+        method: 'DELETE',
+      });
+      setTickets((prev) => prev.filter((t) => t.id !== ticketId));
+      if (selectedTicket && selectedTicket.id === ticketId) {
+        setSelectedTicket(null);
+      }
+    } catch (err) {
+      alert(err.message || 'Failed to delete ticket.');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    // Validate required fields (everything except image)
     if (
       !form.name.trim() ||
       !form.lastFound.trim() ||
@@ -95,7 +140,6 @@ export default function LostAndFound() {
       const newTicket = res.ticket || res;
       setTickets((prev) => [newTicket, ...prev]);
 
-      // Reset form
       setForm({
         name: user?.name || '',
         status: 'Lost',
@@ -289,9 +333,11 @@ export default function LostAndFound() {
           </form>
         </div>
 
-        {/* List: View list of lost or found items */}
+        {/* List: View list of lost or found items with Admin Controls */}
         <div className="lg:col-span-7">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Tickets</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-800">Tickets ({tickets.length})</h2>
+          </div>
           {loading ? (
             <div className="flex h-56 items-center justify-center text-gray-400">Loading tickets…</div>
           ) : tickets.length === 0 ? (
@@ -304,46 +350,77 @@ export default function LostAndFound() {
                 <div
                   key={ticket.id}
                   onClick={() => setSelectedTicket(ticket)}
-                  className="flex cursor-pointer items-start gap-4 rounded-xl border border-gray-200 bg-white p-4 transition-all hover:border-maroon/50 hover:shadow-md"
+                  className="flex flex-col rounded-xl border border-gray-200 bg-white p-4 transition-all hover:border-maroon/50 hover:shadow-md cursor-pointer"
                 >
-                  {ticket.image ? (
-                    <img
-                      src={ticket.image}
-                      alt={ticket.item}
-                      className="h-16 w-16 shrink-0 rounded-lg object-cover border border-gray-100"
-                    />
-                  ) : (
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-xs text-gray-400">
-                      No image
-                    </div>
-                  )}
+                  <div className="flex items-start gap-4">
+                    {ticket.image ? (
+                      <img
+                        src={ticket.image}
+                        alt={ticket.item}
+                        className="h-16 w-16 shrink-0 rounded-lg object-cover border border-gray-100"
+                      />
+                    ) : (
+                      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-xs text-gray-400">
+                        No image
+                      </div>
+                    )}
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <h3 className="font-semibold text-gray-900 truncate text-base">{ticket.item}</h3>
-                      <span
-                        className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase ${
-                          ticket.status === 'Found'
-                            ? 'bg-emerald-100 text-emerald-800'
-                            : 'bg-maroon-light text-maroon'
-                        }`}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <h3 className="font-semibold text-gray-900 truncate text-base">{ticket.item}</h3>
+                        <span
+                          className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase ${
+                            statusBadgeStyles[ticket.status] || 'bg-gray-100 text-gray-800'
+                          }`}
+                        >
+                          {ticket.status}
+                        </span>
+                      </div>
+
+                      <p className="mt-1 text-xs text-gray-600">
+                        <span className="font-semibold text-gray-700">Last found:</span> {ticket.lastFound}
+                      </p>
+
+                      <div className="mt-1.5 flex items-center gap-4 text-xs text-gray-500">
+                        <span>
+                          <strong className="text-gray-700 font-medium">Date:</strong> {ticket.date}
+                        </span>
+                        <span>
+                          <strong className="text-gray-700 font-medium">Time:</strong> {ticket.time}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Admin controls inline on card */}
+                  <div
+                    className="mt-3 flex items-center justify-between border-t border-gray-100 pt-2.5"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold text-gray-500 uppercase">Status:</span>
+                      <select
+                        value={ticket.status}
+                        onChange={(e) => handleStatusChange(ticket.id, e.target.value)}
+                        className="rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-800 outline-none focus:border-maroon focus:ring-1 focus:ring-maroon"
                       >
-                        {ticket.status}
-                      </span>
+                        {STATUSES.map((s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
-                    <p className="mt-1 text-xs text-gray-600">
-                      <span className="font-semibold text-gray-700">Last found:</span> {ticket.lastFound}
-                    </p>
-
-                    <div className="mt-1.5 flex items-center gap-4 text-xs text-gray-500">
-                      <span>
-                        <strong className="text-gray-700 font-medium">Date:</strong> {ticket.date}
-                      </span>
-                      <span>
-                        <strong className="text-gray-700 font-medium">Time:</strong> {ticket.time}
-                      </span>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteTicket(ticket.id)}
+                      className="inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-semibold text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+                      title="Delete Ticket"
+                    >
+                      <Trash2 size={13} />
+                      Delete
+                    </button>
                   </div>
                 </div>
               ))}
@@ -366,9 +443,7 @@ export default function LostAndFound() {
               <div>
                 <span
                   className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase mb-1.5 ${
-                    selectedTicket.status === 'Found'
-                      ? 'bg-emerald-100 text-emerald-800'
-                      : 'bg-maroon-light text-maroon'
+                    statusBadgeStyles[selectedTicket.status] || 'bg-gray-100 text-gray-800'
                   }`}
                 >
                   {selectedTicket.status}
@@ -419,6 +494,39 @@ export default function LostAndFound() {
                 <p className="whitespace-pre-wrap rounded-lg bg-gray-50 p-3 text-gray-800 border border-gray-100 text-sm">
                   {selectedTicket.description}
                 </p>
+              </div>
+            </div>
+
+            {/* Admin Controls Box inside Modal */}
+            <div className="mt-5 rounded-xl border border-gray-200 bg-gray-50 p-4">
+              <p className="text-xs font-semibold uppercase text-gray-600 mb-2">Admin Controls</p>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <label htmlFor="modal-status-select" className="text-xs font-medium text-gray-700">
+                    Status:
+                  </label>
+                  <select
+                    id="modal-status-select"
+                    value={selectedTicket.status}
+                    onChange={(e) => handleStatusChange(selectedTicket.id, e.target.value)}
+                    className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-800 outline-none focus:border-maroon focus:ring-1 focus:ring-maroon"
+                  >
+                    {STATUSES.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleDeleteTicket(selectedTicket.id)}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 transition-colors shadow-sm"
+                >
+                  <Trash2 size={14} />
+                  Delete Ticket
+                </button>
               </div>
             </div>
 

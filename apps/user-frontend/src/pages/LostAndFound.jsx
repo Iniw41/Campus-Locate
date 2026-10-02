@@ -3,6 +3,14 @@ import { api } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { portal } from '../config/portalConfig.js';
 
+const statusBadgeStyles = {
+  Lost: 'bg-maroon-light text-maroon border border-maroon/20',
+  Found: 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+  Claimed: 'bg-blue-100 text-blue-800 border border-blue-200',
+  Resolved: 'bg-purple-100 text-purple-800 border border-purple-200',
+  Returned: 'bg-teal-100 text-teal-800 border border-teal-200',
+};
+
 export default function LostAndFound() {
   const { user } = useAuth();
   const [tickets, setTickets] = useState([]);
@@ -324,9 +332,7 @@ export default function LostAndFound() {
                       <h3 className="font-semibold text-gray-900 truncate text-base">{ticket.item}</h3>
                       <span
                         className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase ${
-                          ticket.status === 'Found'
-                            ? 'bg-emerald-100 text-emerald-800'
-                            : 'bg-maroon-light text-maroon'
+                          statusBadgeStyles[ticket.status] || 'bg-gray-100 text-gray-800'
                         }`}
                       >
                         {ticket.status}
@@ -367,9 +373,7 @@ export default function LostAndFound() {
               <div>
                 <span
                   className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase mb-1.5 ${
-                    selectedTicket.status === 'Found'
-                      ? 'bg-emerald-100 text-emerald-800'
-                      : 'bg-maroon-light text-maroon'
+                    statusBadgeStyles[selectedTicket.status] || 'bg-gray-100 text-gray-800'
                   }`}
                 >
                   {selectedTicket.status}

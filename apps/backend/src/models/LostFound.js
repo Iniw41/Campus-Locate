@@ -24,3 +24,19 @@ export const createTicket = ({ name, status, lastFound, date, time, item, descri
   tickets.push(ticket);
   return ticket;
 };
+
+export const updateTicketStatus = (id, newStatus) => {
+  const ticket = getTicketById(id);
+  if (!ticket) return null;
+  ticket.status = newStatus;
+  ticket.updatedAt = new Date().toISOString();
+  return ticket;
+};
+
+export const deleteTicket = (id) => {
+  const index = tickets.findIndex((t) => t.id === Number(id));
+  if (index === -1) return false;
+  tickets.splice(index, 1);
+  return true;
+};
+

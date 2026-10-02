@@ -7,11 +7,31 @@ export const getAllTickets = () => tickets.slice().reverse();
 
 export const getTicketById = (id) => tickets.find((t) => t.id === Number(id));
 
-export const createTicket = ({ name, status, lastFound, date, time, item, description, image, createdBy }) => {
+export const createTicket = ({
+  firstName,
+  lastName,
+  name,
+  status,
+  approvalStatus,
+  lastFound,
+  date,
+  time,
+  item,
+  description,
+  image,
+  createdBy,
+}) => {
+  const fName = (firstName || '').trim();
+  const lName = (lastName || '').trim();
+  const fullName = name ? name.trim() : (lName && fName ? `${lName}, ${fName}` : lName || fName);
+
   const ticket = {
     id: nextId++,
-    name,
+    firstName: fName,
+    lastName: lName,
+    name: fullName,
     status: status === 'Found' ? 'Found' : 'Lost',
+    approvalStatus: approvalStatus || 'pending', // 'pending' | 'approved' | 'rejected'
     lastFound,
     date,
     time,
@@ -22,6 +42,14 @@ export const createTicket = ({ name, status, lastFound, date, time, item, descri
     createdAt: new Date().toISOString(),
   };
   tickets.push(ticket);
+  return ticket;
+};
+
+export const approveTicket = (id) => {
+  const ticket = getTicketById(id);
+  if (!ticket) return null;
+  ticket.approvalStatus = 'approved';
+  ticket.approvedAt = new Date().toISOString();
   return ticket;
 };
 
@@ -39,4 +67,3 @@ export const deleteTicket = (id) => {
   tickets.splice(index, 1);
   return true;
 };
-

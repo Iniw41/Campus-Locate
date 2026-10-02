@@ -11,16 +11,34 @@ const statusBadgeStyles = {
   Returned: 'bg-teal-100 text-teal-800 border border-teal-200',
 };
 
+const parseName = (fullName = '') => {
+  if (!fullName) return { lastName: '', firstName: '' };
+  if (fullName.includes(',')) {
+    const [last, ...first] = fullName.split(',');
+    return { lastName: last.trim(), firstName: first.join(',').trim() };
+  }
+  const parts = fullName.trim().split(' ');
+  if (parts.length > 1) {
+    const last = parts.pop();
+    return { lastName: last, firstName: parts.join(' ') };
+  }
+  return { lastName: fullName, firstName: '' };
+};
+
 export default function LostAndFound() {
   const { user } = useAuth();
+  const initialName = parseName(user?.name);
+
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const [form, setForm] = useState({
-    name: user?.name || '',
+    lastName: initialName.lastName,
+    firstName: initialName.firstName,
     status: 'Lost',
     lastFound: '',
     date: '',
@@ -70,10 +88,12 @@ export default function LostAndFound() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
 
-    // Validate required fields (everything except image)
+    // Validate required fields (including 2-part name)
     if (
-      !form.name.trim() ||
+      !form.lastName.trim() ||
+      !form.firstName.trim() ||
       !form.lastFound.trim() ||
       !form.date ||
       !form.time ||
@@ -89,7 +109,9 @@ export default function LostAndFound() {
       const res = await api(apiEndpoint, {
         method: 'POST',
         body: {
-          name: form.name.trim(),
+          lastName: form.lastName.trim(),
+          firstName: form.firstName.trim(),
+          name: `${form.lastName.trim()}, ${form.firstName.trim()}`,
           status: form.status,
           lastFound: form.lastFound.trim(),
           date: form.date,
@@ -103,9 +125,14 @@ export default function LostAndFound() {
       const newTicket = res.ticket || res;
       setTickets((prev) => [newTicket, ...prev]);
 
-      // Reset form
+      setSuccessMessage(
+        res.message || 'Ticket submitted successfully! It will appear once approved by an admin.'
+      );
+
+      // Reset form fields
       setForm({
-        name: user?.name || '',
+        lastName: initialName.lastName,
+        firstName: initialName.firstName,
         status: 'Lost',
         lastFound: '',
         date: '',
@@ -114,7 +141,6 @@ export default function LostAndFound() {
         description: '',
         image: '',
       });
-      // Clear file input if present
       const fileInput = document.getElementById('ticket-image');
       if (fileInput) fileInput.value = '';
     } catch (err) {
@@ -133,19 +159,36 @@ export default function LostAndFound() {
         <div className="lg:col-span-5 rounded-2xl border border-gray-200 bg-gray-50/60 p-5 shadow-sm">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Add Ticket</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="ticket-name" className="block text-xs font-semibold text-gray-700 uppercase mb-1">
-                Name *
-              </label>
-              <input
-                id="ticket-name"
-                type="text"
-                value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                placeholder="Reporter's name"
-                required
-                className="w-full rounded-md border border-gray-300 bg-field px-3 py-2 text-sm outline-none focus:border-maroon focus:ring-1 focus:ring-maroon"
-              />
+            {/* 2-Part Name: Last Name and First Name */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="ticket-last-name" className="block text-xs font-semibold text-gray-700 uppercase mb-1">
+                  Last Name *
+                </label>
+                <input
+                  id="ticket-last-name"
+                  type="text"
+                  value={form.lastName}
+                  onChange={(e) => setForm((f) => ({ ...f, lastName: e.target.value }))}
+                  placeholder="e.g. Dela Cruz"
+                  required
+                  className="w-full rounded-md border border-gray-300 bg-field px-3 py-2 text-sm outline-none focus:border-maroon focus:ring-1 focus:ring-maroon"
+                />
+              </div>
+              <div>
+                <label htmlFor="ticket-first-name" className="block text-xs font-semibold text-gray-700 uppercase mb-1">
+                  First Name *
+                </label>
+                <input
+                  id="ticket-first-name"
+                  type="text"
+                  value={form.firstName}
+                  onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))}
+                  placeholder="e.g. Juan A."
+                  required
+                  className="w-full rounded-md border border-gray-300 bg-field px-3 py-2 text-sm outline-none focus:border-maroon focus:ring-1 focus:ring-maroon"
+                />
+              </div>
             </div>
 
             <div>
@@ -288,6 +331,12 @@ export default function LostAndFound() {
               </p>
             )}
 
+            {successMessage && (
+              <div className="rounded-md bg-emerald-50 border border-emerald-200 p-2.5 text-xs text-emerald-800">
+                {successMessage}
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={submitting}
@@ -330,13 +379,19 @@ export default function LostAndFound() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
                       <h3 className="font-semibold text-gray-900 truncate text-base">{ticket.item}</h3>
-                      <span
-                        className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase ${
-                          statusBadgeStyles[ticket.status] || 'bg-gray-100 text-gray-800'
-                        }`}
-                      >
-                        {ticket.status}
-                      </span>
+                      {ticket.approvalStatus === 'pending' ? (
+                        <span className="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase bg-amber-100 text-amber-800 border border-amber-300">
+                          Pending Approval
+                        </span>
+                      ) : (
+                        <span
+                          className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase ${
+                            statusBadgeStyles[ticket.status] || 'bg-gray-100 text-gray-800'
+                          }`}
+                        >
+                          {ticket.status}
+                        </span>
+                      )}
                     </div>
 
                     <p className="mt-1 text-xs text-gray-600">
@@ -371,13 +426,19 @@ export default function LostAndFound() {
           >
             <div className="flex items-start justify-between border-b border-gray-100 pb-3 mb-4">
               <div>
-                <span
-                  className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase mb-1.5 ${
-                    statusBadgeStyles[selectedTicket.status] || 'bg-gray-100 text-gray-800'
-                  }`}
-                >
-                  {selectedTicket.status}
-                </span>
+                {selectedTicket.approvalStatus === 'pending' ? (
+                  <span className="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase mb-1.5 bg-amber-100 text-amber-800 border border-amber-300">
+                    Pending Admin Approval
+                  </span>
+                ) : (
+                  <span
+                    className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase mb-1.5 ${
+                      statusBadgeStyles[selectedTicket.status] || 'bg-gray-100 text-gray-800'
+                    }`}
+                  >
+                    {selectedTicket.status}
+                  </span>
+                )}
                 <h2 className="text-2xl font-bold text-gray-900">{selectedTicket.item}</h2>
               </div>
               <button
@@ -402,8 +463,12 @@ export default function LostAndFound() {
 
             <div className="space-y-3 text-sm">
               <div>
-                <span className="font-semibold text-gray-700">Name: </span>
-                <span className="text-gray-900">{selectedTicket.name}</span>
+                <span className="font-semibold text-gray-700">Reporter: </span>
+                <span className="text-gray-900">
+                  {selectedTicket.lastName
+                    ? `${selectedTicket.lastName}, ${selectedTicket.firstName}`
+                    : selectedTicket.name}
+                </span>
               </div>
               <div>
                 <span className="font-semibold text-gray-700">Last found (location): </span>
@@ -425,6 +490,12 @@ export default function LostAndFound() {
                   {selectedTicket.description}
                 </p>
               </div>
+
+              {selectedTicket.approvalStatus === 'pending' && (
+                <div className="rounded-lg bg-amber-50 border border-amber-200 p-2.5 text-xs text-amber-800">
+                  ⏳ This ticket is currently waiting for admin approval before being visible to other students.
+                </div>
+              )}
             </div>
 
             <div className="mt-6">

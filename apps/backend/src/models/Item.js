@@ -1,5 +1,42 @@
-export let items = [];
-let nextId = 1;
+export let items = [
+  {
+    id: 1,
+    name: 'Blue Hydroflask',
+    description: 'Found near the library',
+    status: 'LOST',
+    reportedBy: 'Juan Dela Cruz',
+    history: [
+      {
+        name: 'Juan Dela Cruz',
+        date: new Date().toLocaleDateString(),
+        time: '09:00:00 AM',
+        action: 'Reported'
+      }
+    ]
+  },
+  {
+    id: 2,
+    name: 'MacBook Charger',
+    description: 'Left in room 402',
+    status: 'FOUND',
+    reportedBy: 'Campus Admin',
+    history: [
+      {
+        name: 'Campus Admin',
+        date: new Date().toLocaleDateString(),
+        time: '11:30:00 AM',
+        action: 'Reported'
+      },
+      {
+        name: 'Campus Admin',
+        date: new Date().toLocaleDateString(),
+        time: '01:15:00 PM',
+        action: 'Status updated to FOUND'
+      }
+    ]
+  }
+];
+let nextId = 3;
 
 export const createItem = (itemData) => {
   const now = new Date();

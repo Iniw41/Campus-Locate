@@ -6,6 +6,17 @@
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+    <script>
+      // Apply the saved theme before React loads.
+      (function () {
+        var t = localStorage.getItem('campuslocate_theme');
+        if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+    
     <title>Campus Locate | Student Portal</title>
   </head>
   <body>

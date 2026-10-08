@@ -5,3 +5,23 @@
 /* Global tweaks. Prefer Tailwind utilities in components; add shared component classes here. */
 body { @apply bg-white text-gray-900 font-sans; }
 .btn-maroon { @apply bg-maroon text-white font-semibold uppercase rounded-md px-5 py-2.5 shadow hover:bg-maroon-dark transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-maroon disabled:opacity-60; }
+/* ---------- Dark mode ----------
+   Applies when <html class="dark"> (set by ThemeContext).
+   For new components you can also use Tailwind's dark: variant, e.g. "bg-white dark:bg-neutral-900". */
+.dark body { background-color: #1b1b1f; color: #f3f4f6; }
+.dark .bg-white { background-color: #1e1e22; }
+.dark .bg-surface { background-color: #121214; }
+.dark .bg-field { background-color: #2a2d38; }
+.dark .bg-maroon-light { background-color: #3a2024; }
+.dark .bg-black { background-color: #f3f4f6; color: #111; } /* bell + toggle buttons */
+.dark .text-gray-900 { color: #f3f4f6; }
+.dark .text-gray-700 { color: #d1d5db; }
+.dark .text-gray-600 { color: #9ca3af; }
+.dark .text-gray-400 { color: #6b7280; }
+.dark .text-maroon { color: #e58a93; }
+.dark .border-gray-200,
+.dark .border-gray-300 { border-color: #3a3a40; }
+.dark .border-gray-700 { border-color: #4b5563; }
+.dark .hover\:bg-gray-100:hover { background-color: #2a2a2f; }
+.dark .hover\:bg-maroon-light:hover { background-color: #3a2024; }
+.dark img[src*="login-backdrop"] { opacity: 0.12; } /* keep the light backdrop from glaring */

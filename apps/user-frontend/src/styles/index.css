@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global tweaks. Prefer Tailwind utilities in components; add shared component classes here. */
+body { @apply bg-white text-gray-900 font-sans; }
+.btn-maroon { @apply bg-maroon text-white font-semibold uppercase rounded-md px-5 py-2.5 shadow hover:bg-maroon-dark transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-maroon disabled:opacity-60; }

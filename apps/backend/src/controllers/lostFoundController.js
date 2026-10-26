@@ -74,7 +74,8 @@ export const addTicket = (req, res) => {
 };
 
 export const approveTicketController = (req, res) => {
-  const ticket = approveTicket(req.params.id);
+  const approverName = req.user?.name || req.body?.updatedBy || 'Admin';
+  const ticket = approveTicket(req.params.id, approverName);
   if (!ticket) {
     return res.status(404).json({ message: 'Ticket not found.' });
   }
@@ -82,13 +83,14 @@ export const approveTicketController = (req, res) => {
 };
 
 export const updateStatus = (req, res) => {
-  const { status } = req.body;
+  const { status, updatedBy } = req.body;
   const allowed = ['Lost', 'Found', 'Claimed', 'Resolved', 'Returned'];
   if (!status || !allowed.includes(status)) {
     return res.status(400).json({ message: `Status must be one of: ${allowed.join(', ')}` });
   }
 
-  const updated = updateTicketStatus(req.params.id, status);
+  const updaterName = req.user?.name || updatedBy || 'Admin';
+  const updated = updateTicketStatus(req.params.id, status, updaterName);
   if (!updated) {
     return res.status(404).json({ message: 'Ticket not found.' });
   }

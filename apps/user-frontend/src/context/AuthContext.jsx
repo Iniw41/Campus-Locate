@@ -21,7 +21,13 @@ export function AuthProvider({ children }) {
     localStorage.setItem(portal.tokenKey, data.token);
     setUser(data.user);
   };
-  const logout = () => { localStorage.removeItem(portal.tokenKey); setUser(null); };
+  const logout = () => {
+    localStorage.removeItem(portal.tokenKey);
+    localStorage.removeItem('campuslocate_user_token');
+    sessionStorage.clear();
+    setUser(null);
+    window.location.replace('/login');
+  };
 
   return <AuthContext.Provider value={{ user, loading, login, logout }}>{children}</AuthContext.Provider>;
 }

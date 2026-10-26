@@ -6,11 +6,13 @@ import Login from './pages/Login.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import ComingSoon from './pages/ComingSoon.jsx';
 import DashboardLayout from './components/DashboardLayout.jsx';
+import LostAndFound from './pages/LostAndFound.jsx';
 
 // Register real pages here as features get built, e.g. { '/navigation': CampusMap }.
 // Any nav item without an entry shows the "coming soon" placeholder.
 const pages = {
   '/': Dashboard,
+  '/lost-and-found': LostAndFound,
 };
 
 function Protected({ children }) {

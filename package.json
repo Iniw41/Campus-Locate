@@ -1,0 +1,14 @@
+{
+  "name": "campuslocate",
+  "private": true,
+  "packageManager": "npm@10.8.0",
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "dev:user": "npm run dev -w @campuslocate/user-frontend",
+    "dev:admin": "npm run dev -w @campuslocate/admin-frontend",
+    "dev:api": "npm run dev -w @campuslocate/backend"
+  },
+  "devDependencies": { "turbo": "^2.0.0" }
+}

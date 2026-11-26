@@ -14,12 +14,13 @@ import {
   CalendarDays,
   Users,
   ClipboardList,
+  HeartHandshake,
 } from 'lucide-react';
 import { api } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { portal } from '../config/portalConfig.js';
 
-const icons = { home: Home, map: Map, search: Search, megaphone: Megaphone, calendar: CalendarDays, users: Users, tickets: ClipboardList };
+const icons = { home: Home, map: Map, search: Search, megaphone: Megaphone, calendar: CalendarDays, users: Users, tickets: ClipboardList, consultation: HeartHandshake };
 const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 
 function dayMonth(dateStr = '') {

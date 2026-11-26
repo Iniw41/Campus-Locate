@@ -1,6 +1,7 @@
 // Slide-in, step-by-step form for creating/editing an announcement or an event.
-import { useState } from 'react';
-import { X, AlertCircle, CheckCircle2, Plus } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { X, AlertCircle, CheckCircle2, Plus, Camera } from 'lucide-react';
+import { prepareImage } from '@shared/src/image.js';
 import {
   OFFICES,
   EVENT_TYPES,
@@ -46,6 +47,7 @@ const blank = (kind) => ({
   venue: '',
   audienceType: 'everyone',
   audienceTargets: [],
+  image: '',
 });
 
 function fromPost(post) {
@@ -64,6 +66,7 @@ function fromPost(post) {
     venue: post.venue || '',
     audienceType: post.audienceType || 'everyone',
     audienceTargets: post.audienceTargets || [],
+    image: post.image || '',
   };
 }
 
@@ -78,8 +81,26 @@ export default function PostFormDrawer({ kind, post, subtitle, submitLabel, onSu
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [imageBusy, setImageBusy] = useState(false);
+  const fileRef = useRef(null);
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const handleImageChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError('');
+    setImageBusy(true);
+    try {
+      const image = await prepareImage(file);
+      setForm((f) => ({ ...f, image }));
+    } catch (err) {
+      setError(err.message || 'Could not add that picture.');
+    } finally {
+      setImageBusy(false);
+      e.target.value = ''; // lets the same file be picked again after removing it
+    }
+  };
 
   const addTargets = () => {
     const incoming = targetInput.split(',').map((s) => s.trim()).filter(Boolean);
@@ -126,6 +147,7 @@ export default function PostFormDrawer({ kind, post, subtitle, submitLabel, onSu
       venue: form.venue.trim(),
       audienceType: form.audienceType,
       audienceTargets: form.audienceType === 'specific' ? targets : [],
+      image: form.image || null,
       ...(isEvent
         ? { organizer: form.organizer.trim(), eventType: form.eventType }
         : { source: form.source.trim(), category: form.category }),
@@ -213,6 +235,45 @@ export default function PostFormDrawer({ kind, post, subtitle, submitLabel, onSu
                 </div>
               </div>
             )}
+
+            <div>
+              <Label htmlFor="post-image">{isEvent ? 'Poster or photo (optional)' : 'Picture (optional)'}</Label>
+              {form.image ? (
+                <div className="relative">
+                  <img src={form.image} alt="Selected picture preview" className="max-h-56 w-full rounded-2xl border border-gray-200 bg-gray-50 object-contain shadow-sm" />
+                  <button
+                    type="button"
+                    title="Remove picture"
+                    aria-label="Remove picture"
+                    onClick={() => setForm((f) => ({ ...f, image: '' }))}
+                    className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white shadow hover:bg-red-700"
+                  >
+                    <X size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => fileRef.current?.click()}
+                    className="mt-2 text-xs font-semibold text-maroon hover:underline"
+                  >
+                    Replace picture
+                  </button>
+                </div>
+              ) : (
+                <label
+                  htmlFor="post-image"
+                  className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-gray-300 px-4 py-6 text-center text-sm text-gray-500 transition-colors hover:border-maroon hover:text-maroon"
+                >
+                  {imageBusy ? (
+                    <span className="h-5 w-5 animate-spin rounded-full border-2 border-maroon border-t-transparent" />
+                  ) : (
+                    <Camera size={22} />
+                  )}
+                  {imageBusy ? 'Preparing picture…' : 'Tap to add a picture'}
+                  <span className="text-[11px] text-gray-400">A poster, flyer or photo helps people understand the {noun} at a glance.</span>
+                </label>
+              )}
+              <input ref={fileRef} id="post-image" type="file" accept="image/*" onChange={handleImageChange} className="sr-only" />
+            </div>
           </Step>
 
           <Step n={2} title="Date, time & venue">
@@ -327,7 +388,7 @@ export default function PostFormDrawer({ kind, post, subtitle, submitLabel, onSu
             <button type="button" onClick={onClose} className="rounded-full px-5 py-2.5 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-100">
               Cancel
             </button>
-            <button type="submit" disabled={submitting || !!success} className="rounded-full bg-maroon px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-maroon/30 transition-all hover:bg-maroon-dark disabled:opacity-60">
+            <button type="submit" disabled={submitting || imageBusy || !!success} className="rounded-full bg-maroon px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-maroon/30 transition-all hover:bg-maroon-dark disabled:opacity-60">
               {submitting ? 'Saving…' : submitLabel}
             </button>
           </div>

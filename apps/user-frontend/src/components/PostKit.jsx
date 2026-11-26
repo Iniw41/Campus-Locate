@@ -107,6 +107,14 @@ export function PostDetailDrawer({ post, kind, onClose, footer, notice, showHist
             </p>
           )}
 
+          {post.image && (
+            <img
+              src={post.image}
+              alt={`Picture for ${post.title}`}
+              className="max-h-96 w-full rounded-2xl border border-gray-200 bg-gray-50 object-contain"
+            />
+          )}
+
           <dl className="grid grid-cols-2 gap-3 text-xs">
             <Info Icon={Calendar} label="Date" wide>{fmtDate(post.date)}</Info>
             <Info Icon={Clock} label="Time">{fmtRange(post)}</Info>

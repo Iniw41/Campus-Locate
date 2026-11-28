@@ -14,7 +14,6 @@ export const portal = {
     { label: 'Announcements and Posts', path: '/announcements', icon: 'megaphone' },
     { label: 'Events', path: '/events', icon: 'calendar' },
     { label: 'Lost and Found Tickets', path: '/lost-and-found', icon: 'tickets' },
-    { label: 'Consultations', path: '/consultations', icon: 'consultation' },
     { label: 'User Management', path: '/users', icon: 'users' },
   ],
 };

@@ -1,7 +1,7 @@
 // Navigation: a slim maroon "wayfinding rail" on desktop, a floating dock on mobile.
 // Items are driven by portal.nav, so new features show up automatically.
 import { NavLink } from 'react-router-dom';
-import { Home, Map, Search, Megaphone, CalendarDays, Users, ClipboardList, HeartHandshake, LogOut } from 'lucide-react';
+import { Home, Map, Search, Megaphone, CalendarDays, Users, ClipboardList, LogOut } from 'lucide-react';
 import logo from '@shared/assets/cit-logo.png';
 import { portal } from '../config/portalConfig.js';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -14,7 +14,6 @@ const icons = {
   calendar: CalendarDays,
   users: Users,
   tickets: ClipboardList,
-  consultation: HeartHandshake,
 };
 
 export default function Sidebar() {

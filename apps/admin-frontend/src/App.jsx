@@ -9,14 +9,12 @@ import DashboardLayout from './components/DashboardLayout.jsx';
 import LostAndFound from './pages/LostAndFound.jsx';
 import Announcements from './pages/Announcements.jsx';
 import Events from './pages/Events.jsx';
-import Consultations from './pages/Consultations.jsx';
 
 // Register real pages here as features get built, e.g. { '/navigation': CampusMap }.
 // Any nav item without an entry shows the "coming soon" placeholder.
 const pages = {
   '/': Dashboard,
   '/lost-and-found': LostAndFound,
-  '/consultations': Consultations,
   '/announcements': Announcements,
   '/events': Events,
 };

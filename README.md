@@ -4,6 +4,8 @@ Campus navigation, events/announcements and lost-and-found for CIT-U. **This fir
 
 Stack: HTML, CSS, JavaScript, React (Vite), Tailwind CSS, Express.
 
+tesing
+
 ## Run it
 ```bash
 npm install
@@ -56,9 +58,6 @@ Student and admin logins are separate: each portal has its own login endpoint, a
 2. **Page:** create `src/pages/LostAndFound.jsx`, then register it in `App.jsx` under `pages` (`'/lost-and-found': LostAndFound`). Items without a page show `ComingSoon`.
 3. **API:** add `routes/user/lostFound.routes.js` + a controller, and mount it in `routes/user/index.js`. Admin side: same under `routes/admin/`.
 4. **Data:** replace the in-memory `models/User.js` with a real database before going live.
-
-## Pictures on posts
-Events and Announcements accept one optional picture (poster, flyer or photo). The form shrinks it in the browser (`packages/shared/src/image.js`), sends it as a base64 data URL in the `image` field, and the API (`services/postValidation.js`) accepts PNG/JPG/WEBP/GIF up to ~3 MB. Like the rest of the data, it lives in memory until a real database is added.
 
 ## Notes
 - Set `JWT_SECRET` in `apps/backend/.env` before deploying.

@@ -1,22 +1,11 @@
 // Shared validation/normalisation for Announcements and Events.
-// Both posts carry: title, description, date, time, duration (minutes), venue, audience, optional image.
+// Both posts carry: title, description, date, time, duration (minutes), venue, audience.
 export const EVENT_TYPES = ['Campus', 'Organizational', 'Academic', 'Sports', 'Cultural', 'Other'];
 export const ANNOUNCEMENT_CATEGORIES = ['General', 'Sports'];
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 const str = (v) => (typeof v === 'string' ? v.trim() : '');
-
-// Optional picture, sent as a base64 data URL (same approach as Lost & Found).
-const IMAGE_RE = /^data:image\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+/=]+$/;
-export const MAX_IMAGE_CHARS = 5 * 1024 * 1024; // roughly 3.7 MB of actual image data
-
-const parseImage = (value) => {
-  if (value === undefined || value === null || value === '') return null;
-  if (typeof value !== 'string' || !IMAGE_RE.test(value)) throw fail('The picture must be a PNG, JPG, WEBP or GIF image.');
-  if (value.length > MAX_IMAGE_CHARS) throw fail('The picture is too large. Please use one under 3 MB.');
-  return value;
-};
 
 const fail = (message) => {
   const e = new Error(message);
@@ -51,9 +40,7 @@ export function parseCommon(body = {}, { requireVenue, requireDuration }) {
     if (audienceTargets.length === 0) throw fail('Add at least one person or group for a specific audience.');
   }
 
-  const image = parseImage(body.image);
-
-  return { title, description, date, time, venue, durationMinutes, audienceType, audienceTargets, image };
+  return { title, description, date, time, venue, durationMinutes, audienceType, audienceTargets };
 }
 
 export const nowStamp = () => {

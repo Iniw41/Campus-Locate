@@ -15,7 +15,6 @@ export const portal = {
     { label: 'Home', path: '/', icon: 'home' },
     { label: 'Campus Navigation', path: '/navigation', icon: 'map' },
     { label: 'Lost and Found', path: '/lost-and-found', icon: 'search' },
-    { label: 'Consultations', path: '/consultations', icon: 'consultation' },
     { label: 'Announcements', path: '/announcements', icon: 'megaphone' },
     { label: 'Events', path: '/events', icon: 'calendar' },
   ],

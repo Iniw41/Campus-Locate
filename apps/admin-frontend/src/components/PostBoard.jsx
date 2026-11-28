@@ -450,14 +450,6 @@ export default function PostBoard({ kind }) {
                     s === 'finished' && !nonApproved ? 'opacity-80' : ''
                   }`}
                 >
-                  {p.image && (
-                    <img
-                      src={p.image}
-                      alt=""
-                      loading="lazy"
-                      className="mb-3 h-36 w-full rounded-xl border border-gray-100 object-cover"
-                    />
-                  )}
                   <div className="flex gap-4">
                     <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-maroon-light">
                       <span className="font-display text-xl font-bold leading-none text-maroon">{d}</span>

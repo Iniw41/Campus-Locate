@@ -14,12 +14,14 @@ import {
   CalendarDays,
   Users,
   ClipboardList,
+  HeartHandshake,
 } from 'lucide-react';
 import { api } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { portal } from '../config/portalConfig.js';
+import TicketQueueBoard from '@shared/src/components/TicketQueueBoard.jsx';
 
-const icons = { home: Home, map: Map, search: Search, megaphone: Megaphone, calendar: CalendarDays, users: Users, tickets: ClipboardList };
+const icons = { home: Home, map: Map, search: Search, megaphone: Megaphone, calendar: CalendarDays, users: Users, tickets: ClipboardList, consultation: HeartHandshake };
 const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 
 function dayMonth(dateStr = '') {
@@ -102,6 +104,9 @@ export default function Dashboard() {
           </div>
         ))}
       </section>
+
+      {/* Teller queue (hardcoded demo data, same board as the student dashboard) */}
+      <TicketQueueBoard />
 
       <div className="grid gap-6 lg:grid-cols-12">
         {/* Approval queue */}

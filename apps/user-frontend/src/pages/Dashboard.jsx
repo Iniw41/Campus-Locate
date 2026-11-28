@@ -2,10 +2,11 @@
 // the student's own reports, latest items and quick services.
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, ArrowUpRight, Clock, MapPin, Search, Map, Megaphone, CalendarDays, HandHeart, Inbox } from 'lucide-react';
+import { Plus, ArrowUpRight, Clock, MapPin, Search, Map, Megaphone, CalendarDays, HandHeart, HeartHandshake, Inbox } from 'lucide-react';
 import { api } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import CampusMapArt from '../components/CampusMapArt.jsx';
+import TicketQueueBoard from '@shared/src/components/TicketQueueBoard.jsx';
 
 const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 
@@ -156,6 +157,9 @@ export default function Dashboard() {
         </span>
       </Link>
 
+      {/* Teller queue (hardcoded demo data, same board as the admin dashboard) */}
+      <TicketQueueBoard className="md:col-span-6" />
+
       {/* Latest on the board */}
       <section className="rounded-[2rem] border border-gray-200 bg-white p-6 shadow-sm md:col-span-3">
         <div className="mb-4 flex items-center justify-between">
@@ -215,6 +219,19 @@ export default function Dashboard() {
               <span className="flex-1">
                 <span className="block text-sm font-semibold text-gray-900">Lost and Found</span>
                 <span className="block text-xs text-gray-500">Report or recover belongings</span>
+              </span>
+              <ArrowUpRight size={16} className="text-gray-400 transition-colors group-hover:text-maroon" />
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/consultations"
+              className="group flex items-center gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-3 transition-colors hover:border-maroon/30 hover:bg-maroon-light/50"
+            >
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-maroon-light text-maroon"><HeartHandshake size={19} /></span>
+              <span className="flex-1">
+                <span className="block text-sm font-semibold text-gray-900">Consultations</span>
+                <span className="block text-xs text-gray-500">Book Faculty, Guidance, TIC, or Clinic</span>
               </span>
               <ArrowUpRight size={16} className="text-gray-400 transition-colors group-hover:text-maroon" />
             </Link>
